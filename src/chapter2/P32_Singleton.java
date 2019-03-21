@@ -1,4 +1,5 @@
 package chapter2;
+
 /**
  * Created by ryder on 2017/6/7.
  * 单例模式
@@ -9,7 +10,7 @@ package chapter2;
  * 实现方法的选择：一般情况下直接使用饿汉式就好了，要求延迟加载时倾向于用静态内部类，涉及到反序列化创建对象或反射问题最好选择枚举
  */
 public class P32_Singleton {
-    public static void main(String[] args){
+    public static void main(String[] args) {
         //调用方式
         Singleton1 singleton1 = Singleton1.getInstance();
         Singleton2 singleton2 = Singleton2.getInstance();
@@ -24,22 +25,28 @@ public class P32_Singleton {
 
 //版本一：饿汉式
 //特点：线程安全；在类初始化执行到静态属性时就分配了资源，有资源浪费问题；
-class Singleton1{
+class Singleton1 {
     //或者将私有静态final成员设为公有成员，可省去getInstance公有函数
     private static final Singleton1 instance = new Singleton1();
-    private Singleton1(){}
-    public static Singleton1 getInstance(){
+
+    private Singleton1() {
+    }
+
+    public static Singleton1 getInstance() {
         return instance;
     }
 }
 
 //版本二：懒汉式(非线程安全)
 //特点：在第一次调用获取实例方法时分配内存，实现了懒加载；非线程安全；
-class Singleton2{
-    private static Singleton2 instance= null;
-    private Singleton2(){}
-    public static Singleton2 getInstance(){
-        if(instance==null){
+class Singleton2 {
+    private static Singleton2 instance = null;
+
+    private Singleton2() {
+    }
+
+    public static Singleton2 getInstance() {
+        if (instance == null) {
             instance = new Singleton2();
         }
         return instance;
@@ -48,32 +55,40 @@ class Singleton2{
 
 //版本三：懒汉式变种（synchronized同步方法，支持多线程）
 //特点：线程安全；synchronized而造成的阻塞致使效率低，而且很多的阻塞都是没必要的。
-class Singleton3{
+class Singleton3 {
     private static Singleton3 instance = null;
-    private Singleton3(){}
-    public static synchronized Singleton3 getInstance(){
-        if(instance == null)
+
+    private Singleton3() {
+    }
+
+    public static synchronized Singleton3 getInstance() {
+        if (instance == null) {
             instance = new Singleton3();
+        }
         return instance;
     }
 }
 
 //版本四：懒汉式变种（synchronized同步块，支持多线程）
 //特点：写法不同，但与版本三有一样的问题
-class Singleton4{
+class Singleton4 {
     private static Singleton4 instance = null;
-    private Singleton4(){}
-    public static Singleton4 getInstance(){
-        synchronized(Singleton4.class) {
-            if (instance == null)
+
+    private Singleton4() {
+    }
+
+    public static Singleton4 getInstance() {
+        synchronized (Singleton4.class) {
+            if (instance == null) {
                 instance = new Singleton4();
+            }
         }
         return instance;
     }
 }
 
 //版本五：双检锁DCL，支持多线程-懒汉式
-//特点：线程安全；多进行一次if判断，加入volatile修饰,优点是只有在第一次实例化时加锁，之后不会加锁，提升了效率，缺点写法复杂
+//特点：线程安全；多进行一次if判断，加入volatile修饰，优点是只有在第一次实例化时加锁，之后不会加锁，提升了效率，缺点写法复杂
 //不加入volatile，可能出现第一个if判断不为null，但还并未执行构造函数的情况，因为java编译器会进行指令重排;
 //volatile的两大作用:
 //1防止编译器对被修饰变量相关代码进行指令重排；2读写操作都不会调用工作内存而是直接取主存，保证了内存可见性
@@ -87,14 +102,18 @@ class Singleton4{
 //简单来说，volatile适合这种场景：一个变量被多个线程共享，线程直接给这个变量赋值。
 //还能在双检锁上进行优化，引入一个局部变量，但个人觉得效率提成并不大，不再赘述。
 //volatile参考：http://blog.csdn.net/qq_29923439/article/details/51273812
-class Singleton5{
+class Singleton5 {
     private volatile static Singleton5 instance = null;
-    private Singleton5(){}
-    public  static Singleton5 getInstance(){
-        if(instance==null){
-            synchronized (Singleton5.class){
-                if(instance==null)
+
+    private Singleton5() {
+    }
+
+    public static Singleton5 getInstance() {
+        if (instance == null) {
+            synchronized (Singleton5.class) {
+                if (instance == null) {
                     instance = new Singleton5();
+                }
             }
         }
         return instance;
@@ -111,12 +130,15 @@ class Singleton5{
 //1.静态变量会按照声明的顺序先依次声明并设置为该类型的默认值，但不赋值为初始化的值。
 //2.声明完毕后,再按声明的顺序依次设置为初始化的值，如果没有初始化的值就跳过。
 //static变量初始化参考：http://www.jb51.net/article/86629.htm
-class Singleton6{
-    private Singleton6(){}
-    public static Singleton6 getInstance(){
+class Singleton6 {
+    private Singleton6() {
+    }
+
+    public static Singleton6 getInstance() {
         return Singleton6Holder.instance;
     }
-    private static class Singleton6Holder{
+
+    private static class Singleton6Holder {
         public static final Singleton6 instance = new Singleton6();
     }
 }
@@ -125,13 +147,15 @@ class Singleton6{
 //一个完美的单例需要做到：单例，懒加载，线程安全，防止反序列化产生新对象，防止反射攻击
 //而枚举的特性保证了以上除了懒加载以外的所有要求，而且实现代码及其简单
 //Enum的单例模式参考：http://www.jianshu.com/p/83f7958b0944
-enum Singleton7{
+enum Singleton7 {
     instance;
     private String attribute;
-    void setAttribute(String attribute){
+
+    void setAttribute(String attribute) {
         this.attribute = attribute;
     }
-    String getAttribute(){
+
+    String getAttribute() {
         return this.attribute;
     }
 }
